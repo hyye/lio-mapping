@@ -1,0 +1,21 @@
+<!-- -*- mode: XML -*- -->
+
+<launch>
+
+  <arg name="rviz" default="true" />
+  <arg name="enable_4d" default="true" />
+
+  <node pkg="lio" type="lio_map_builder_node" name="lio_map_builder" output="screen">
+  	<param name="compact_data" type="bool" value="false" />
+  	<param name="enable_4d" type="bool" value="$(arg enable_4d)" />
+  	<remap from="/full_odom_cloud" to="/local/full_points"/>
+  	<remap from="/laser_cloud_surf_last" to="/local/surf_points"/>
+  	<remap from="/laser_cloud_corner_last" to="/local/corner_points"/>
+  	<remap from="/laser_odom_to_init" to="/local_laser_odom"/>
+  </node>
+
+  <group if="$(arg rviz)">
+    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find lio)/rviz_cfg/lio_map_builder.rviz" />
+  </group>
+
+</launch>

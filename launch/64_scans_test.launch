@@ -1,0 +1,17 @@
+<!-- -*- mode: XML -*- -->
+
+<launch>
+
+  <arg name="rviz" default="true" />
+
+  <node pkg="lio" type="lio_processor_node" name="lio_processor" output="screen">
+  	<param name="sensor_type" type="int" value="64" />
+  </node>
+  <node pkg="lio" type="lio_odometry_node" name="lio_odometry" output="screen" />
+  <node pkg="lio" type="lio_mapping_node" name="lio_mapping" output="screen" />
+
+  <group if="$(arg rviz)">
+    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find lio)/rviz_cfg/lio_baseline.rviz" />
+  </group>
+
+</launch>

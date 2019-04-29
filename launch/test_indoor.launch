@@ -1,0 +1,13 @@
+<!-- -*- mode: XML -*- -->
+
+<launch>
+
+  <node pkg="lio" type="lio_processor_node" name="lio_processor" output="log">
+  	<param name="rad_diff" type="double" value="1.0" />
+  	<param name="infer_start_ori" type="bool" value="false" />
+  </node>
+  <node pkg="lio" type="lio_estimator_node" name="lio_estimator" output="screen">
+    <param name="config_file" type="string" value="$(find lio)/config/indoor_test_config.yaml" />
+  </node>
+
+</launch>
