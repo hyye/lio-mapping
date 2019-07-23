@@ -106,6 +106,7 @@ void PointOdometry::SetupRos(ros::NodeHandle &nh) {
   is_ros_setup_ = true;
 
   nh.param("compact_data", compact_data_, true);
+  nh.param("no_deskew", no_deskew_, false);
 
   enable_odom_service_ = nh.advertiseService("/enable_odom", &PointOdometry::EnableOdom, this);
 
@@ -235,6 +236,9 @@ bool PointOdometry::HasNewData() {
 
 void PointOdometry::TransformToStart(const PointT &pi, PointT &po) {
   float s = time_factor_ * (pi.intensity - int(pi.intensity));
+  if (no_deskew_) {
+    s = 0;
+  }
   if (s < 0 || s > 1.001) {
     po = pi;
     LOG(ERROR) << "time ratio error: " << s;
@@ -261,6 +265,10 @@ size_t PointOdometry::TransformToEnd(PointCloudPtr &cloud) {
     PointT &point = cloud->points[i];
 
     float s = time_factor_ * (point.intensity - int(point.intensity));
+
+    if (no_deskew_) {
+      s = 0;
+    }
 
     point.x -= s * transform_es_.pos.x();
     point.y -= s * transform_es_.pos.y();

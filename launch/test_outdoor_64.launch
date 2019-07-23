@@ -1,0 +1,14 @@
+<!-- -*- mode: XML -*- -->
+
+<launch>
+
+  <node pkg="lio" type="lio_processor_node" name="lio_processor" output="log">
+    <param name="sensor_type" type="int" value="64" />
+  </node>
+
+  <node pkg="lio" type="lio_estimator_node" name="lio_estimator" output="screen">
+    <param name="config_file" type="string" value="$(find lio)/config/outdoor_test_config_64.yaml" />
+    <param name="no_deskew" type="bool" value="true" />
+  </node>
+
+</launch>

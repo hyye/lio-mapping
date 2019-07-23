@@ -218,6 +218,7 @@ class PointOdometry {
   bool is_ros_setup_ = false;
   bool compact_data_ = false;
   bool enable_odom_ = true;
+  bool no_deskew_ = false;
 
   ros::ServiceServer enable_odom_service_;
 

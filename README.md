@@ -1,7 +1,7 @@
 # LIO-mapping
 ## A Tightly Coupled 3D Lidar and Inertial Odometry and Mapping Approach
 #### Authors: Haoyang Ye, Yuying Chen, and Ming Liu from [RAM-LAB](https://ram-lab.com/).
-[[Paper]](https://arxiv.org/abs/1904.06993), [[Project]](https://sites.google.com/view/lio-mapping), [[Bib]](https://ram-lab.com/papers/2019/icra_2019_ye.bib). Accepted by ICRA 2019.
+[[Paper]](https://arxiv.org/abs/1904.06993), [[Project]](https://sites.google.com/view/lio-mapping), [[Bib]](https://ram-lab.com/papers/2019/icra_2019_ye.bib). ICRA 2019.
 ## Table of Contents
 * [Demo Results](#demo-results)
 * [Prerequisites](#prerequisites)
@@ -44,7 +44,7 @@ Try it out using docker:
 Note: Visualization (rviz) can run in the running container with [nvidia-docker](https://github.com/NVIDIA/nvidia-docker). The [Dockerfile](docker/Dockerfile) is compatible with [nvidia-docker 2.0](https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-2.0)); [1.Dockerfile](docker/1.Dockerfile) with [nvidia-docker 1.0](https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-1.0)).
 
 ## Credits
-The feature extraction, lidar-only odometry and baseline implemented were heavily derived or taken from the orignal [LOAM](http://wiki.ros.org/loam_velodyne) and its [modified version](https://github.com/laboshinl/loam_velodyne) (the point_processor in our project), and one of the initialization methods and the optimization pipeline from [VINS-mono](https://github.com/HKUST-Aerial-Robotics/VINS-Mono). The copyright headers are retained for the relevant files.
+The feature extraction, lidar-only odometry and baseline implemented were heavily derived or taken from the original [LOAM](http://wiki.ros.org/loam_velodyne) and its [modified version](https://github.com/laboshinl/loam_velodyne) (the point_processor in our project), and one of the initialization methods and the optimization pipeline from [VINS-mono](https://github.com/HKUST-Aerial-Robotics/VINS-Mono). The copyright headers are retained for the relevant files.
 
 ## Licence
-The source code is relseased under [GPL-3.0](https://www.gnu.org/licenses/).
+The source code is released under [GPL-3.0](https://www.gnu.org/licenses/).
