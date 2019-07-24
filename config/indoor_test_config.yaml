@@ -1,20 +1,19 @@
 %YAML:1.0
 # lidar features
 min_plane_dis: 0.2
-
 min_match_sq_dis: 1.0
 
+# Voxel grid leaf sizes
 corner_filter_size: 0.2
 surf_filter_size: 0.4
 map_filter_size: 0.6
 
-# window sizes
+# Optimization window sizes
 window_size: 12 #7
-opt_window_size: 7 #5
+opt_window_size: 7 # 5
+init_window_factor: 2           # Factor that makes the local window of initialization longer
 
-init_window_factor: 2
-
-# Extrinsic parameter between IMU and Camera (adapted from VINS-mono)
+# Extrinsic parameter between IMU and laser (adapted from VINS-mono)
 estimate_extrinsic: 2   # 0  Have an accurate extrinsic parameters. We will trust the following imu^R_cam, imu^T_cam, don't change it.
                         # 1  Have an initial guess about extrinsic parameters. We will optimize around your initial guess.
                         # 2  Don't know anything about extrinsic parameters. You don't need to give R,T. We will try to calibrate it. Do some rotation movement at beginning.
@@ -35,10 +34,10 @@ extrinsic_translation: !!opencv-matrix
   dt: d
   data: [0.0, 0.0, -0.081939]
 
-# optimization options
+# Optimization options
 run_optimization: 1
 
-update_laser_imu: 1
+update_laser_imu: 1               # Debug, update optimized states
 gravity_fix: 1
 
 plane_projection_factor: 0
@@ -63,8 +62,8 @@ g_norm: 9.805
 
 # lidar deskew
 enable_deskew: 1
-cutoff_deskew: 0
+cutoff_deskew: 0                  # Turn off deskewing, when using corrected point cloud data, like KITTI.
 
 keep_features: 1
 
-msg_time_delay: 0.05
+msg_time_delay: 0.05              # The time offset between lidar and IMU, for typical Velodyne data, buffer the IMU to the middle timestamp of the point cloud.
