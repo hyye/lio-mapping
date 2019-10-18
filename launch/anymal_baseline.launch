@@ -1,0 +1,29 @@
+<!-- -*- mode: XML -*- -->
+
+<launch>
+
+  <arg name="rviz" default="true" />
+
+  <node pkg="lio" type="lio_processor_node" name="lio_processor" output="log">
+  	<param name="rad_diff" type="double" value="1.0" />
+  	<param name="infer_start_ori" type="bool" value="false" />
+    <remap from="/velodyne_points" to="filtered_points" />
+  </node>
+  <!-- <node pkg="lio" type="lio_estimator_node" name="lio_estimator" output="screen">
+    <param name="config_file" type="string" value="$(find lio)/config/anymal_config.yaml" />
+    <remap from="/imu/data" to="/sensors/imu" />
+  </node> -->
+
+  <!-- <node pkg="lio" type="lio_processor_node" name="lio_processor" output="screen" /> -->
+  <node pkg="lio" type="lio_odometry_node" name="lio_odometry" output="screen" />
+  <node pkg="lio" type="lio_mapping_node" name="lio_mapping" output="screen" />
+
+  <node pkg="lio" type="lio_input_filters_node" name="lio_input_filter" output="screen">
+    <remap from="velodyne_points" to="/point_cloud_filter/velodyne/point_cloud_cropped" />
+  </node>
+
+  <group if="$(arg rviz)">
+    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find lio)/rviz_cfg/lio_baseline.rviz" />
+  </group>
+
+</launch>

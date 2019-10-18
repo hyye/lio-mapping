@@ -45,6 +45,8 @@ struct MapBuilderConfig {
 
   float min_match_sq_dis = 1.0;
   float min_plane_dis = 0.2;
+
+  bool save_map = false;
 };
 
 class MapBuilder : public PointMapping {
@@ -57,6 +59,7 @@ class MapBuilder : public PointMapping {
   void PublishMapBuilderResults();
   void Transform4DAssociateToMap();
   void Transform4DUpdate();
+  void SaveMap(std::string map_name);
 
  private:
   bool system_init_ = false;
@@ -64,6 +67,7 @@ class MapBuilder : public PointMapping {
   int skip_count_ = 2;
   MapBuilderConfig config_;
   int odom_count_ = 0;
+  PointCloudPtr laser_map_all_;
 
 };
 

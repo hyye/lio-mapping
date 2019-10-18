@@ -89,7 +89,8 @@ void MapBuilder::Transform4DUpdate() {
   transform_aft_mapped_ = transform_tobe_mapped_;
 }
 
-MapBuilder::MapBuilder(MapBuilderConfig config) {
+MapBuilder::MapBuilder(MapBuilderConfig config)
+  :laser_map_all_(new PointCloud()) {
 
   down_size_filter_corner_.setLeafSize(config.corner_filter_size, config.corner_filter_size, config.corner_filter_size);
   down_size_filter_surf_.setLeafSize(config.surf_filter_size, config.surf_filter_size, config.surf_filter_size);
@@ -215,6 +216,14 @@ void MapBuilder::PublishMapBuilderResults() {
                                           transform_aft_mapped_.pos.y(),
                                           transform_aft_mapped_.pos.z()));
   tf_broadcaster_.sendTransform(aft_mapped_trans_);
+
+  if (config_.save_map) {
+    LOG(INFO) << "before: " << full_cloud_->size();
+    down_size_filter_surf_.setInputCloud(full_cloud_);
+    down_size_filter_surf_.filter(*full_cloud_);
+    LOG(INFO) << "after: " << full_cloud_->size();
+    *laser_map_all_ += *full_cloud_;
+  }
 }
 
 void MapBuilder::ProcessMap() {
@@ -1011,6 +1020,13 @@ void MapBuilder::OptimizeMap() {
   }
 
   Transform4DUpdate();
+}
+
+void MapBuilder::SaveMap(std::string map_name) {
+  pcl::PCDWriter pcd_writer;
+  LOG(INFO) << "saving...";
+  pcd_writer.writeBinary(map_name, *laser_map_all_);
+  LOG(INFO) << "saved as " << map_name;
 }
 
 }

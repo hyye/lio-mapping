@@ -52,9 +52,9 @@ void PointCloudHandler(const sensor_msgs::PointCloud2ConstPtr &raw_points_msg) {
   pcl::transformPointCloud(laser_cloud_in, *transformed_ptr, transform_to_world);
 
   pcl::CropBox<pcl::PointXYZI> box_filter;
-  box_filter.setMin(Eigen::Vector4f(-10, -5, -1.7, 1.0));
-  box_filter.setMax(Eigen::Vector4f(5, 7, 0.6, 1.0));
-  box_filter.setNegative(true);
+  box_filter.setMin(Eigen::Vector4f(-50, -50, -50, 1.0));
+  box_filter.setMax(Eigen::Vector4f(50, 50, 50, 1.0));
+  box_filter.setNegative(false);
   box_filter.setInputCloud(transformed_ptr);
   box_filter.filter(tmp_cloud);
 
@@ -65,7 +65,7 @@ void PointCloudHandler(const sensor_msgs::PointCloud2ConstPtr &raw_points_msg) {
                   raw_points_msg->header.stamp,
                   raw_points_msg->header.frame_id);
 
-  br_ptr->sendTransform(tf::StampedTransform(tf_transform, raw_points_msg->header.stamp, "imu_link_kaist", "right_velodyne"));
+  br_ptr->sendTransform(tf::StampedTransform(tf_transform, raw_points_msg->header.stamp, "world", "velodyne_filtered"));
 }
 
 int main(int argc, char **argv) {
@@ -79,10 +79,10 @@ int main(int argc, char **argv) {
   br_ptr = new tf::TransformBroadcaster();
   pub_filtered_cloud = nh.advertise<sensor_msgs::PointCloud2>("/filtered_points", 2);
 
-  Eigen::Matrix3f R_inv;
-  R_inv << -4.91913910e-01, -5.01145813e-01, -7.11950546e-01,
-      7.13989130e-01, -7.00156621e-01, -4.78439170e-04,
-      -4.98237120e-01, -5.08560301e-01, 7.02229444e-01;
+  Eigen::Matrix3f R_inv = Eigen::Matrix3f::Identity();
+  // R_inv << -4.91913910e-01, -5.01145813e-01, -7.11950546e-01,
+  //     7.13989130e-01, -7.00156621e-01, -4.78439170e-04,
+  //     -4.98237120e-01, -5.08560301e-01, 7.02229444e-01;
   transform_to_world.setIdentity();
   transform_to_world.linear() = R_inv.transpose();
 

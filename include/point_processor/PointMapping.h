@@ -141,7 +141,7 @@ class PointMapping {
                          const Transform &transform_tobe_mapped,
                          const CubeCenter &cube_center);
 
-  void PublishResults();
+  void PublishResults(bool update = true);
 
   void Process();
 

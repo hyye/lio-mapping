@@ -46,6 +46,8 @@
 #include "map_builder/MapBuilder.h"
 #include "utils/TicToc.h"
 
+#include "boost/date_time/posix_time/posix_time.hpp"
+
 using namespace lio;
 using namespace std;
 using namespace mathutils;
@@ -61,8 +63,12 @@ int main(int argc, char **argv) {
 
   ros::NodeHandle nh("~");
 
+   boost::posix_time::ptime my_posix_time = ros::Time::now().toBoost();
+  std::string iso_time_str = boost::posix_time::to_iso_extended_string(my_posix_time);
+
   MapBuilderConfig config;
   config.map_filter_size = 0.2;
+  config.save_map = true;
 
   MapBuilder mapper(config);
   mapper.SetupRos(nh);
@@ -73,6 +79,10 @@ int main(int argc, char **argv) {
     mapper.ProcessMap();
     ros::spinOnce();
     r.sleep();
+  }
+
+  if (config.save_map) {
+    mapper.SaveMap("/tmp/" + iso_time_str + ".pcd");
   }
 
   return 0;

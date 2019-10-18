@@ -701,11 +701,11 @@ void Estimator::ProcessLaserOdom(const Transform &transform_in, const std_msgs::
           SolveOptimization();
 
           if (!opt_point_coeff_mask_.first()) {
-            UpdateMapDatabase(opt_corner_stack_.first(),
-                              opt_surf_stack_.first(),
-                              opt_valid_idx_.first(),
-                              opt_transforms_.first(),
-                              opt_cube_centers_.first());
+            // UpdateMapDatabase(opt_corner_stack_.first(),
+            //                   opt_surf_stack_.first(),
+            //                   opt_valid_idx_.first(),
+            //                   opt_transforms_.first(),
+            //                   opt_cube_centers_.first());
 
             DLOG(INFO) << "all_laser_transforms_: " << all_laser_transforms_[estimator_config_.window_size
                 - estimator_config_.opt_window_size].second.transform;
@@ -718,7 +718,7 @@ void Estimator::ProcessLaserOdom(const Transform &transform_in, const std_msgs::
                      << " != estimator_config_.opt_window_size + 1: " << estimator_config_.opt_window_size + 1;
         }
 
-        PublishResults();
+        PublishResults(false);
 
         SlideWindow();
 
