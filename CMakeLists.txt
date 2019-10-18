@@ -78,11 +78,10 @@ include_directories(${CERES_INCLUDE_DIR})
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+ add_message_files(
+   FILES
+   OdometryWithImuBiases.msg
+ )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -99,10 +98,11 @@ include_directories(${CERES_INCLUDE_DIR})
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   geometry_msgs#   nav_msgs#   sensor_msgs#   std_msgs
-# )
+ generate_messages(
+   DEPENDENCIES
+   geometry_msgs
+   std_msgs #   nav_msgs#   sensor_msgs
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -136,7 +136,7 @@ include_directories(${CERES_INCLUDE_DIR})
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES lio
-#  CATKIN_DEPENDS dynamic_reconfigure geometry_msgs message_generation message_runtime nav_msgs pcl_conversions pcl_ros rosbag roscpp rospy sensor_msgs std_msgs tf tf_conversions
+  CATKIN_DEPENDS dynamic_reconfigure geometry_msgs message_generation message_runtime nav_msgs pcl_conversions pcl_ros rosbag roscpp rospy sensor_msgs std_msgs tf tf_conversions
 #  DEPENDS system_lib
 )
 
@@ -223,6 +223,10 @@ add_library(${PROJECT_NAME}-imu-processor
   src/imu_processor/Estimator.cc
   src/imu_processor/ImuInitializer.cc
   src/imu_processor/MeasurementManager.cc
+)
+add_dependencies(
+  ${PROJECT_NAME}-imu-processor
+  ${PROJECT_NAME}_generate_messages_cpp
 )
 
 # TODO: separate these two libs

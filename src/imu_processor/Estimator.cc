@@ -313,6 +313,10 @@ void Estimator::SetupRos(ros::NodeHandle &nh) {
   predict_odom_.child_frame_id = "/imu_predict";
   pub_predict_odom_ = nh.advertise<nav_msgs::Odometry>("/predict_odom", 100);
 
+  maplab_odom_.header.frame_id = "/world";
+  maplab_odom_.child_frame_id = "/imu_predict";
+  pub_maplab_odom_ = nh.advertise<OdometryWithImuBiases>("/maplab/predict_odom", 100);
+
   laser_odom_.header.frame_id = "/world";
   laser_odom_.child_frame_id = "/laser_predict";
   pub_laser_odom_ = nh.advertise<nav_msgs::Odometry>("/predict_laser_odom", 100);
@@ -424,6 +428,21 @@ void Estimator::ProcessImu(double dt,
     predict_odom_.twist.twist.angular.z = Bas_.last().z();
 
     pub_predict_odom_.publish(predict_odom_);
+
+    maplab_odom_.header = predict_odom_.header;
+    maplab_odom_.pose = predict_odom_.pose;
+    maplab_odom_.twist = predict_odom_.twist;
+    // FIXME: clean it up
+    maplab_odom_.twist.twist.angular.x = gyr_last_.x();
+    maplab_odom_.twist.twist.angular.y = gyr_last_.y();
+    maplab_odom_.twist.twist.angular.z = gyr_last_.z();
+    maplab_odom_.accel_bias.x = Bas_.last().x();
+    maplab_odom_.accel_bias.y = Bas_.last().y();
+    maplab_odom_.accel_bias.z = Bas_.last().z();
+    maplab_odom_.gyro_bias.x = Bgs_.last().x();
+    maplab_odom_.gyro_bias.y = Bgs_.last().y();
+    maplab_odom_.gyro_bias.z = Bgs_.last().z();
+    pub_maplab_odom_.publish(maplab_odom_);
   }
 
 }

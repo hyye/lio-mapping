@@ -52,6 +52,8 @@
 
 #include "visualizer/Visualizer.h"
 
+#include "lio/OdometryWithImuBiases.h"
+
 //#define FIX_MAP
 //#define USE_CORNER
 
@@ -247,6 +249,9 @@ class Estimator : public MeasurementManager, public PointMapping {
 
   ros::Publisher pub_predict_odom_;
   nav_msgs::Odometry predict_odom_;
+
+  ros::Publisher pub_maplab_odom_;
+  OdometryWithImuBiases maplab_odom_;
 
   ros::Publisher pub_local_odom_;
   nav_msgs::Odometry local_odom_;

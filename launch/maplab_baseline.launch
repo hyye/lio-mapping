@@ -10,7 +10,7 @@
     <remap from="/velodyne_points" to="/os1_node/points" />
   </node>
   <node pkg="lio" type="lio_odometry_node" name="lio_odometry" output="screen">
-    <param name="config_file" type="string" value="$(find lio)/config/maplab.yaml" />
+    <param name="config_file" type="string" value="$(find lio)/config/maplab_baseline.yaml" />
     <param name="no_deskew" type="bool" value="true" />
   </node>
   <node pkg="lio" type="lio_mapping_node" name="lio_mapping" output="screen" />
