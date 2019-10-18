@@ -43,6 +43,8 @@
 #include "point_processor/PointProcessor.h"
 #include "utils/TicToc.h"
 
+#include "utils/YamlLoader.h"
+
 using namespace lio;
 using namespace std;
 using namespace mathutils;
@@ -62,6 +64,9 @@ int main(int argc, char **argv) {
   nh.param("sensor_type", sensor_type, 16);
   nh.param("rad_diff", rad_diff, 0.2);
   nh.param("infer_start_ori", infer_start_ori, false);
+  // FIXME: make it uniform
+  std::string config_file = "";
+  nh.param("config_file", config_file, std::string(""));
 
   PointProcessor processor; // Default sensor_type is 16
 
@@ -71,14 +76,18 @@ int main(int argc, char **argv) {
     processor = PointProcessor(-24.9f, 2, 64);
   } else if (sensor_type == 320) {
     processor = PointProcessor(-25, 15, 32, true);
+  } else if (sensor_type == 640) {
+    processor = PointProcessor(-16.6, 16.6, 64);
   }
 
-  PointProcessorConfig config;
+  YamlLoader yaml_loader(config_file);
+
+  PointProcessorConfig config = yaml_loader.point_processor_config;
   config.rad_diff = rad_diff;
   config.infer_start_ori_ = infer_start_ori;
   processor.SetupConfig(config);
 
-  LOG(INFO) << "Sensor type: " << processor.laser_scans.size();
+  LOG(INFO) << "laser_scans: " << processor.laser_scans.size();
 
   processor.SetupRos(nh);
 

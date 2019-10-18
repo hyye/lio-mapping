@@ -79,6 +79,8 @@ PointProcessor::PointProcessor(float lower_bound, float upper_bound, int num_rin
       num_rings_(num_rings),
       factor_((num_rings - 1) / (upper_bound - lower_bound)),
       uneven_(uneven) {
+  LOG(INFO) << "lower_bound: " << lower_bound_;
+  LOG(INFO) << "upper_bound: " << upper_bound_;
   PointCloud scan;
   laser_scans.clear();
   for (int i = 0; i < num_rings_; ++i) {

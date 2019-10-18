@@ -33,6 +33,7 @@
 
 #include <cstdlib>
 #include <queue>
+#include <utility>
 #include <vector>
 #include <map>
 #include <string>
@@ -76,12 +77,16 @@ struct MeasurementManagerConfig {
   string laser_odom_topic = "/aft_mapped_to_init"; // NOTE: Check if the time is too long
   string compact_data_topic = "/compact_data"; // NOTE: Check if the time is too long
   double msg_time_delay = 0;
+  double scan_period = 0.1;
   bool enable_imu = true;
+  int odom_io = 2;
 };
 
 class MeasurementManager {
 
  public:
+  MeasurementManager(MeasurementManagerConfig mm_config = MeasurementManagerConfig())
+      : mm_config_(std::move(mm_config)) {}
   virtual void SetupRos(ros::NodeHandle &nh);
   void ImuHandler(const sensor_msgs::ImuConstPtr &raw_imu_msg);
   void LaserOdomHandler(const nav_msgs::OdometryConstPtr &laser_odom_msg);

@@ -67,6 +67,7 @@ namespace lio {
 PointMapping::PointMapping(float scan_period,
                            size_t num_max_iterations)
     : scan_period_(scan_period),
+      time_factor_(1.0 / scan_period),
       num_stack_frames_(1),
       num_map_frames_(5),
       frame_count_(0),

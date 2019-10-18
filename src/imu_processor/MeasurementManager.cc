@@ -47,6 +47,8 @@ void MeasurementManager::SetupRos(ros::NodeHandle &nh) {
                                                               10,
                                                               &MeasurementManager::CompactDataHandler,
                                                               this);
+  LOG(INFO) << "msg_time_delay: " <<  mm_config_.msg_time_delay << "s";
+  LOG(INFO) << "scan_period: " <<  mm_config_.scan_period << "s";
 //  sub_laser_odom_ =
 //      nh_.subscribe<nav_msgs::Odometry>(mm_config_.laser_odom_topic, 10, &MeasurementManager::LaserOdomHandler, this);
 }

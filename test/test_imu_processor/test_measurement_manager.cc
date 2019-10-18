@@ -54,7 +54,7 @@ using namespace mathutils;
 
 static ros::NodeHandlePtr nh_ptr;
 
-DEFINE_string(config_file, "/home/hyye/dev_ws/src/lio/config/test_config.yaml", "yaml config file");
+DEFINE_string(config_file, "", "yaml config file");
 
 TEST(MeasurementManager, ObjectTest) {
 

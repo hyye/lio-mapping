@@ -42,6 +42,7 @@
 
 #include "point_processor/PointOdometry.h"
 #include "utils/TicToc.h"
+#include "utils/YamlLoader.h"
 
 using namespace lio;
 using namespace std;
@@ -57,8 +58,11 @@ int main(int argc, char **argv) {
   ros::init(argc, argv, "point_odometry");
 
   ros::NodeHandle nh("~");
+  std::string config_file;
+  nh.param("config_file", config_file, std::string(""));
+  YamlLoader yaml_loader(config_file);
 
-  PointOdometry odometry(0.1, FLAGS_io_ratio);
+  PointOdometry odometry(yaml_loader.mm_config.scan_period, yaml_loader.mm_config.odom_io);
   odometry.SetupRos(nh);
   odometry.Reset();
 

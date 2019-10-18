@@ -145,6 +145,8 @@ Estimator::~Estimator() {
 void Estimator::SetupAllEstimatorConfig(const EstimatorConfig &config, const MeasurementManagerConfig &mm_config) {
 
   this->mm_config_ = mm_config;
+  this->scan_period_ = mm_config_.scan_period;
+  this->time_factor_ = 1.0 / this->scan_period_;
 
   if (estimator_config_.window_size != config.window_size) {
     all_laser_transforms_.Reset(config.window_size + 1);
@@ -530,7 +532,7 @@ void Estimator::ProcessLaserOdom(const Transform &transform_in, const std_msgs::
               }
             }
 
-            if (extrinsic_stage_ != 2 && (header.stamp.toSec() - initial_time_) > 0.1) {
+            if (extrinsic_stage_ != 2 && (header.stamp.toSec() - initial_time_) > mm_config_.scan_period) {
               DLOG(INFO) << "EXTRINSIC STAGE: " << extrinsic_stage_;
               init_result = RunInitialization();
               initial_time_ = header.stamp.toSec();
@@ -638,7 +640,7 @@ void Estimator::ProcessLaserOdom(const Transform &transform_in, const std_msgs::
             for (int i = int(imu_stampedtransforms.size()) - 1; i >= 0; --i) {
               time_s = imu_stampedtransforms[i].time;
               transform_s = imu_stampedtransforms[i].transform;
-              if (time_e - imu_stampedtransforms[i].time >= 0.1) {
+              if (time_e - imu_stampedtransforms[i].time >= mm_config_.scan_period) {
                 break;
               }
             }
@@ -650,7 +652,7 @@ void Estimator::ProcessLaserOdom(const Transform &transform_in, const std_msgs::
             Transform transform_body_es = transform_e.inverse() * transform_s;
 //            transform_body_es.pos = -0.1 * body_velocity.cast<float>();
             {
-              float s = 0.1 / (time_e - time_s);
+              float s = mm_config_.scan_period / (time_e - time_s);
               Eigen::Quaternionf q_id, q_s, q_e, q_half;
               q_e = transform_body_es.rot;
               q_id.setIdentity();
@@ -665,15 +667,18 @@ void Estimator::ProcessLaserOdom(const Transform &transform_in, const std_msgs::
             DLOG(INFO) << "transform diff norm: " << transform_es_.pos.norm();
 
             if (!estimator_config_.cutoff_deskew) {
-              TransformToEnd(laser_cloud_surf_last_, transform_es_, 10);
+              TransformToEnd(laser_cloud_surf_last_, transform_es_, this->time_factor_);
 
-              TransformToEnd(laser_cloud_corner_last_, transform_es_, 10);
+              TransformToEnd(laser_cloud_corner_last_, transform_es_, this->time_factor_);
 #ifdef USE_CORNER
-              TransformToEnd(corner_stack_.last(), transform_es_, 10);
+              TransformToEnd(corner_stack_.last(), transform_es_, this->time_factor_);
 #endif
             } else {
               DLOG(INFO) << "cutoff_deskew";
             }
+
+//            LOG(ERROR) << "scan_period_: " << scan_period_;
+//            LOG(ERROR) << "time_factor_: " << time_factor_;
 
             laser_cloud_surf_stack_downsampled_->clear();
             down_size_filter_surf_.setInputCloud(laser_cloud_surf_last_);
@@ -2407,13 +2412,13 @@ void Estimator::SolveOptimization() {
         // NOTE: full stack into end of the scan
 //        PointCloudPtr tmp_points_ptr = boost::make_shared<PointCloud>(PointCloud());
 //        *tmp_points_ptr = *(full_stack_.last());
-//        TransformToEnd(tmp_points_ptr, transform_es_, 10);
+//        TransformToEnd(tmp_points_ptr, transform_es_, this->time_factor_);
 //        PublishCloudMsg(pub_predict_corrected_full_points_,
 //                        *tmp_points_ptr,
 //                        Headers_.last().stamp,
 //                        "/laser_predict");
 
-        TransformToEnd(full_stack_.last(), transform_es_, 10, true);
+        TransformToEnd(full_stack_.last(), transform_es_, this->time_factor_, true);
         PublishCloudMsg(pub_predict_corrected_full_points_,
                         *(full_stack_.last()),
                         Headers_.last().stamp,
@@ -2667,7 +2672,7 @@ void Estimator::SlideWindow() { // NOTE: this function is only for the states an
 
 void Estimator::ProcessEstimation() {
 
-  while (true) {
+  while (ros::ok()) {
     PairMeasurements measurements;
     std::unique_lock<std::mutex> buf_lk(buf_mutex_);
     con_.wait(buf_lk, [&] {

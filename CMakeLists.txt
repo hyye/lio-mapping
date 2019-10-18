@@ -156,6 +156,8 @@ include_directories(
 #   src/${PROJECT_NAME}/lio.cpp
 #
 
+add_subdirectory(utils)
+
 set(lio_EXT_LIBS
   ${PCL_LIBRARIES}
   ${OpenCV_LIBRARIES}
@@ -173,23 +175,17 @@ add_library(${PROJECT_NAME}-point-processor
   src/point_processor/PointOdometry.cc
   src/point_processor/PointProcessor.cc
 )
-# target_link_libraries(${PROJECT_NAME}-point-processor
-#   ${point_processor_EXT_LIBS}
-# )
+add_dependencies(${PROJECT_NAME}-point-processor
+  ${PROJECT_NAME}-utils
+)
 
 add_library(${PROJECT_NAME}-visualizer
   src/visualizer/Visualizer.cc
 )
-# target_link_libraries(${PROJECT_NAME}-visualizer
-#   ${point_processor_EXT_LIBS}
-# )
 
 add_library(${PROJECT_NAME}-feature-manager
   src/feature_manager/FeatureManager.cc
 )
-# target_link_libraries(${PROJECT_NAME}-feature-manager
-#   ${point_processor_EXT_LIBS}
-# )
 
 set(factor_EXT_LIBS
   ${PROJECT_NAME}-feature-manager
@@ -211,6 +207,7 @@ add_library(${PROJECT_NAME}-factor
 
 add_dependencies(${PROJECT_NAME}-factor
   ${PROJECT_NAME}-feature-manager
+  ${PROJECT_NAME}-utils
 )
  
 # target_link_libraries(${PROJECT_NAME}-factor
@@ -264,6 +261,7 @@ add_executable(${PROJECT_NAME}_processor_node src/processor_node.cc)
 add_dependencies(${PROJECT_NAME}_processor_node ${PROJECT_NAME}-point-processor)
 target_link_libraries(${PROJECT_NAME}_processor_node
   ${PROJECT_NAME}-point-processor
+  ${PROJECT_NAME}-utils
   ${point_processor_EXT_LIBS}
 )
 
@@ -271,6 +269,7 @@ add_executable(${PROJECT_NAME}_odometry_node src/odometry_node.cc)
 add_dependencies(${PROJECT_NAME}_odometry_node ${PROJECT_NAME}-point-processor)
 target_link_libraries(${PROJECT_NAME}_odometry_node
   ${PROJECT_NAME}-point-processor
+  ${PROJECT_NAME}-utils
   ${point_processor_EXT_LIBS}
 )
 
@@ -278,6 +277,7 @@ add_executable(${PROJECT_NAME}_mapping_node src/mapping_node.cc)
 add_dependencies(${PROJECT_NAME}_mapping_node ${PROJECT_NAME}-point-processor)
 target_link_libraries(${PROJECT_NAME}_mapping_node
   ${PROJECT_NAME}-point-processor
+  ${PROJECT_NAME}-utils
   ${point_processor_EXT_LIBS}
 )
 
@@ -287,6 +287,7 @@ add_dependencies(${PROJECT_NAME}_estimator_node
   ${PROJECT_NAME}-factor
   ${PROJECT_NAME}-feature-manager
   ${PROJECT_NAME}-point-processor
+  ${PROJECT_NAME}-utils
   ${PROJECT_NAME}-visualizer
 )
 target_link_libraries(${PROJECT_NAME}_estimator_node
@@ -294,6 +295,7 @@ target_link_libraries(${PROJECT_NAME}_estimator_node
   ${PROJECT_NAME}-factor
   ${PROJECT_NAME}-feature-manager
   ${PROJECT_NAME}-point-processor
+  ${PROJECT_NAME}-utils
   ${PROJECT_NAME}-visualizer
   ${imu_processor_EXT_LIBS}
 )
@@ -307,12 +309,6 @@ target_link_libraries(${PROJECT_NAME}_input_filters_node
 ##   MAP   ##
 #############
 add_library(${PROJECT_NAME}-map-builder src/map_builder/MapBuilder.cc)
-# add_dependencies(${PROJECT_NAME}-map-builder
-#   ${PROJECT_NAME}-point-processor
-# )
-# target_link_libraries(${PROJECT_NAME}-map-builder
-#   ${PROJECT_NAME}-point-processor
-# )
 
 add_executable(${PROJECT_NAME}_map_builder_node src/map_builder_node.cc)
 add_dependencies(${PROJECT_NAME}_map_builder_node
@@ -321,6 +317,7 @@ add_dependencies(${PROJECT_NAME}_map_builder_node
 target_link_libraries(${PROJECT_NAME}_map_builder_node
   ${PROJECT_NAME}-map-builder
   ${PROJECT_NAME}-point-processor
+  ${PROJECT_NAME}-utils
   ${point_processor_EXT_LIBS}
 )
 
@@ -383,6 +380,7 @@ catkin_add_gtest(${PROJECT_NAME}-test-point-processor test/test_point_processor/
 add_dependencies(${PROJECT_NAME}-test-point-processor ${PROJECT_NAME}-point-processor)
 target_link_libraries(${PROJECT_NAME}-test-point-processor
   ${PROJECT_NAME}-point-processor
+  ${PROJECT_NAME}-utils
   ${point_processor_EXT_LIBS}
 )
 
@@ -390,6 +388,7 @@ catkin_add_gtest(${PROJECT_NAME}-test-point-odometry test/test_point_processor/t
 add_dependencies(${PROJECT_NAME}-test-point-odometry ${PROJECT_NAME}-point-processor)
 target_link_libraries(${PROJECT_NAME}-test-point-odometry
   ${PROJECT_NAME}-point-processor
+  ${PROJECT_NAME}-utils
   ${point_processor_EXT_LIBS}
 )
 
@@ -397,6 +396,7 @@ catkin_add_gtest(${PROJECT_NAME}-test-point-mapping test/test_point_processor/te
 add_dependencies(${PROJECT_NAME}-test-point-mapping ${PROJECT_NAME}-point-processor)
 target_link_libraries(${PROJECT_NAME}-test-point-mapping
   ${PROJECT_NAME}-point-processor
+  ${PROJECT_NAME}-utils
   ${point_processor_EXT_LIBS}
 )
 
@@ -404,6 +404,7 @@ catkin_add_gtest(${PROJECT_NAME}-test-rotations test/test_rotations.cc)
 add_dependencies(${PROJECT_NAME}-test-rotations ${PROJECT_NAME}-point-processor)
 target_link_libraries(${PROJECT_NAME}-test-rotations
   ${PROJECT_NAME}-point-processor
+  ${PROJECT_NAME}-utils
   ${point_processor_EXT_LIBS}
 )
 

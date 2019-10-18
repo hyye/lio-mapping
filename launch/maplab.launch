@@ -1,0 +1,17 @@
+<!-- -*- mode: XML -*- -->
+
+<launch>
+
+  <node pkg="lio" type="lio_processor_node" name="lio_processor" output="log">
+    <param name="config_file" type="string" value="$(find lio)/config/maplab.yaml" />
+    <param name="sensor_type" type="int" value="640" />
+  	<param name="rad_diff" type="double" value="1.0" />
+  	<param name="infer_start_ori" type="bool" value="false" />
+    <remap from="/velodyne_points" to="/os1_node/points" />
+  </node>
+  <node pkg="lio" type="lio_estimator_node" name="lio_estimator" output="screen">
+    <param name="config_file" type="string" value="$(find lio)/config/maplab.yaml" />
+    <remap from="/imu/data" to="/VersaVIS/imu" />
+  </node>
+
+</launch>
