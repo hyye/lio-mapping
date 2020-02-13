@@ -78,7 +78,12 @@ int main(int argc, char **argv) {
     processor = PointProcessor(-25, 15, 32, true);
   } else if (sensor_type == 640) {
     processor = PointProcessor(-16.6, 16.6, 64);
+  } else if (sensor_type == 321) {
+    processor = PointProcessor(2.3125, 89.5, 32);
+  } else if (sensor_type == 322) {
+    processor = PointProcessor(2.3125, 89.5, 32, true);
   }
+
 
   YamlLoader yaml_loader(config_file);
 

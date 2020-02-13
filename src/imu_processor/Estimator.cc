@@ -882,45 +882,44 @@ void Estimator::ProcessCompactData(const sensor_msgs::PointCloud2ConstPtr &compa
 
 bool Estimator::RunInitialization() {
 
-  // NOTE: check IMU observibility, adapted from VINS-mono
-  {
-    PairTimeLaserTransform laser_trans_i, laser_trans_j;
-    Vector3d sum_g;
-
-    for (size_t i = 0; i < estimator_config_.window_size;
-         ++i) {
-      laser_trans_j = all_laser_transforms_[i + 1];
-
-      double dt = laser_trans_j.second.pre_integration->sum_dt_;
-      Vector3d tmp_g = laser_trans_j.second.pre_integration->delta_v_ / dt;
-      sum_g += tmp_g;
-    }
-
-    Vector3d aver_g;
-    aver_g = sum_g * 1.0 / (estimator_config_.window_size);
-    double var = 0;
-
-    for (size_t i = 0; i < estimator_config_.window_size;
-         ++i) {
-      laser_trans_j = all_laser_transforms_[i + 1];
-      double dt = laser_trans_j.second.pre_integration->sum_dt_;
-      Vector3d tmp_g = laser_trans_j.second.pre_integration->delta_v_ / dt;
-      var += (tmp_g - aver_g).transpose() * (tmp_g - aver_g);
-    }
-
-    var = sqrt(var / (estimator_config_.window_size));
-
-    DLOG(INFO) << "IMU variation: " << var;
-
-    if (var < 0.25) {
-      ROS_INFO("IMU excitation not enough!");
-      return false;
-    }
-  }
-
   Eigen::Vector3d g_vec_in_laser;
   bool init_result = false;
   if (!estimator_config_.static_init) {
+    // NOTE: check IMU observibility, adapted from VINS-mono
+    {
+      PairTimeLaserTransform laser_trans_i, laser_trans_j;
+      Vector3d sum_g;
+
+      for (size_t i = 0; i < estimator_config_.window_size;
+           ++i) {
+        laser_trans_j = all_laser_transforms_[i + 1];
+
+        double dt = laser_trans_j.second.pre_integration->sum_dt_;
+        Vector3d tmp_g = laser_trans_j.second.pre_integration->delta_v_ / dt;
+        sum_g += tmp_g;
+      }
+
+      Vector3d aver_g;
+      aver_g = sum_g * 1.0 / (estimator_config_.window_size);
+      double var = 0;
+
+      for (size_t i = 0; i < estimator_config_.window_size;
+           ++i) {
+        laser_trans_j = all_laser_transforms_[i + 1];
+        double dt = laser_trans_j.second.pre_integration->sum_dt_;
+        Vector3d tmp_g = laser_trans_j.second.pre_integration->delta_v_ / dt;
+        var += (tmp_g - aver_g).transpose() * (tmp_g - aver_g);
+      }
+
+      var = sqrt(var / (estimator_config_.window_size));
+
+      DLOG(INFO) << "IMU variation: " << var;
+
+      if (var < 0.25) {
+        ROS_INFO("IMU excitation var: %f not enough!", var);
+        return false;
+      }
+    }
     init_result =
         ImuInitializer::Initialization(all_laser_transforms_, Vs_, Bas_, Bgs_,
                                        g_vec_in_laser, transform_lb_, R_WI_);
@@ -1696,6 +1695,8 @@ void Estimator::SolveOptimization() {
 //  loss_function = new ceres::HuberLoss(0.5);
   loss_function = new ceres::CauchyLoss(1.0);
 
+  double average_dist = 0;
+
   // NOTE: update from laser transform
   if (estimator_config_.update_laser_imu) {
     DLOG(INFO) << "======= bef opt =======";
@@ -1723,6 +1724,9 @@ void Estimator::SolveOptimization() {
     vector<Transform> imu_poses, lidar_poses;
 
     for (int i = 0; i < estimator_config_.opt_window_size + 1; ++i) {
+      if (i != estimator_config_.opt_window_size) {
+        average_dist += (Ps_[i + 1] - Ps_[i]).norm();
+      }
       int opt_i = int(estimator_config_.window_size - estimator_config_.opt_window_size + i);
 
       Quaterniond rot_li(Rs_[opt_i] * transform_lb.rot.inverse());
@@ -1744,6 +1748,8 @@ void Estimator::SolveOptimization() {
       imu_poses.push_back(transform_bi.cast<float>());
       lidar_poses.push_back(transform_li.cast<float>());
     }
+
+    average_dist /= estimator_config_.opt_window_size;
 
     //region Check for imu res
 //    for (int i = 0; i < estimator_config_.window_size; ++i) {
@@ -1792,7 +1798,7 @@ void Estimator::SolveOptimization() {
     ceres::LocalParameterization *local_parameterization = new PoseLocalParameterization();
     problem.AddParameterBlock(para_ex_pose_, SIZE_POSE, local_parameterization);
     para_ids.push_back(para_ex_pose_);
-    if (extrinsic_stage_ == 0 || estimator_config_.opt_extrinsic == false) {
+    if (extrinsic_stage_ == 0 || estimator_config_.opt_extrinsic == false || average_dist < 0.01) {
       DLOG(INFO) << "fix extrinsic param";
       problem.SetParameterBlockConstant(para_ex_pose_);
     } else {

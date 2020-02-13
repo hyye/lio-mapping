@@ -47,7 +47,8 @@ MatrixXd TangentBasis(Vector3d &g0) {
 }
 
 void EstimateGyroBias(CircularBuffer<PairTimeLaserTransform> &all_laser_transforms,
-                      CircularBuffer<Vector3d> &Bgs) {
+                      CircularBuffer<Vector3d> &Bgs,
+                      const Transform &transform_lb) {
   Matrix3d A;
   Vector3d b;
   Vector3d delta_bg;
@@ -68,7 +69,7 @@ void EstimateGyroBias(CircularBuffer<PairTimeLaserTransform> &all_laser_transfor
     tmp_A.setZero();
     VectorXd tmp_b(3);
     tmp_b.setZero();
-    Eigen::Quaterniond q_ij(laser_trans_i.second.transform.rot.conjugate() * laser_trans_j.second.transform.rot);
+    Eigen::Quaterniond q_ij(transform_lb.rot.conjugate() * laser_trans_i.second.transform.rot.conjugate() * laser_trans_j.second.transform.rot * transform_lb.rot);
     tmp_A = laser_trans_j.second.pre_integration->jacobian_.template block<3, 3>(O_R, O_BG); /// Jacobian of dr12_bg
     tmp_b = 2 * (laser_trans_j.second.pre_integration->delta_q_.conjugate() * q_ij).vec(); /// 2*vec(IMU_ij^T * q_ij)
     A += tmp_A.transpose() * tmp_A;
@@ -428,7 +429,7 @@ bool ImuInitializer::Initialization(CircularBuffer<PairTimeLaserTransform> &all_
 //  TicToc tic_toc;
 //  tic_toc.Tic();
 
-  EstimateGyroBias(all_laser_transforms, Bgs);
+  EstimateGyroBias(all_laser_transforms, Bgs, transform_lb);
 
 //  DLOG(INFO) << "EstimateGyroBias time: " << tic_toc.Toc() << " ms";
 //  tic_toc.Tic();
