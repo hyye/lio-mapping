@@ -106,7 +106,7 @@ struct EstimatorConfig {
   bool cutoff_deskew = false;
   bool keep_features = false;
 
-
+  bool static_init = false;
 
   IntegrationBaseConfig pim_config;
 };

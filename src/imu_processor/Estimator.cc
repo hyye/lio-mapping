@@ -30,6 +30,7 @@
 
 #include <ceres/ceres.h>
 #include "imu_processor/Estimator.h"
+#include "imu_processor/ImuInitializerStatic.h"
 
 #include <pcl/common/transforms.h>
 #include <pcl/search/impl/flann_search.hpp>
@@ -918,8 +919,16 @@ bool Estimator::RunInitialization() {
   }
 
   Eigen::Vector3d g_vec_in_laser;
-  bool init_result
-      = ImuInitializer::Initialization(all_laser_transforms_, Vs_, Bas_, Bgs_, g_vec_in_laser, transform_lb_, R_WI_);
+  bool init_result = false;
+  if (!estimator_config_.static_init) {
+    init_result =
+        ImuInitializer::Initialization(all_laser_transforms_, Vs_, Bas_, Bgs_,
+                                       g_vec_in_laser, transform_lb_, R_WI_);
+  } else {
+    init_result = ImuInitializerStatic::Initialization(
+        all_laser_transforms_, Vs_, Bas_, Bgs_, g_vec_in_laser, transform_lb_,
+        R_WI_);
+  }
 //  init_result = false;
 
 //  Q_WI_ = R_WI_;

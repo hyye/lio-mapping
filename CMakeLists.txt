@@ -222,6 +222,7 @@ set(imu_processor_EXT_LIBS
 add_library(${PROJECT_NAME}-imu-processor
   src/imu_processor/Estimator.cc
   src/imu_processor/ImuInitializer.cc
+  src/imu_processor/ImuInitializerStatic.cc
   src/imu_processor/MeasurementManager.cc
 )
 add_dependencies(

@@ -101,6 +101,11 @@ bool YamlLoader::LoadFile(std::string config_file) {
       mm_config.scan_period = tmp_double;
       point_processor_config.scan_period = tmp_double;
     }
+
+    if (!fs_settings["static_init"].empty()) {
+      tmp_double = fs_settings["static_init"];
+      estimator_config.static_init = (tmp_double > 0);
+    }
   }
 }
 
